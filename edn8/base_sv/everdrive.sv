@@ -114,8 +114,8 @@ module everdrive(
 //**************************************************************************************** data bus drivers
 	wire apu_space				= {!cpu_ce, cpu_addr[14:5], 5'd0} == 16'h4000;
 	wire cart_space 			= (!cpu_ce | cpu_addr[14]) & !apu_space;
-  wire special_values = 
-   ({!cpu_ce, cpu_addr[14:0]} == 16'h6500 | {!cpu_ce, cpu_addr[14:0]} == 16'h6501 | {!cpu_ce, cpu_addr[14:0]} == 16'h6502);
+  wire special_values = cfg.map_idx == 0 &&
+   ({!cpu_ce, cpu_addr[14:0]} == 16'h40E0 | {!cpu_ce, cpu_addr[14:0]} == 16'h40E1 | {!cpu_ce, cpu_addr[14:0]} == 16'h40E2);
   
 
   reg [7:0]sha_watch_state = 0;
@@ -185,9 +185,9 @@ module everdrive(
 	bio_ce_cpu		? bio_do[7:0] : 
 	sst_ce_cpu		? sst_do[7:0] :
 	cc_ce_cpu		? cc_do[7:0]  ://priority was changed
-  cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6500 ? sha_written_data[7:0] :
-  cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6501 ? sha_written_addr[7:0] :
-  cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6502 ? sha_written_addr[15:8] :
+  cfg.map_idx == 0 && cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h40E0 ? sha_written_data[7:0] :
+  cfg.map_idx == 0 && cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h40E1 ? sha_written_addr[7:0] :
+  cfg.map_idx == 0 && cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h40E2 ? sha_written_addr[15:8] :
 	mao.map_cpu_oe	? mao.map_cpu_do[7:0] : 
 	{!cpu_ce, cpu_addr[14:8]};//open bus
 	

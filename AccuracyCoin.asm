@@ -1238,9 +1238,9 @@ DMASync90_Loop:
 
 ;; In the verilog, the mapper has been designed to watch for the write cycle of SHA ($93)
 ;; The mapper exposes 3 registers to retrieve the snooped values
-;; $6500 - snooped data bus
-;; $6501 - snooped address bus low byte
-;; $6502 - snooped address bus high byte
+;; $40E0 - snooped data bus
+;; $40E1 - snooped address bus low byte
+;; $40E2 - snooped address bus high byte
 ;; This subroutine writes the three values to the screen near the bottom left
 PrintSnoopedAddrAndByte:
   ;; Preserve AXY so we can call this from more places safely (thanks zeta0134 for the suggestion)
@@ -1254,17 +1254,17 @@ PrintSnoopedAddrAndByte:
 	.word $2261
 	.byte "Addr ", $FF
   ;; This will write the high byte of the address as hex right after "Addr "
-  LDA $6502
+  LDA $40E2
   JSR PrintByte
   ;; This will write the low byte of the address as hex right after "Addr "
-  LDA $6501
+  LDA $40E1
   ;; This will write "Byte " to the nametable near the bottom left just below the last test
   JSR PrintByte
   JSR PrintText
 	.word $2281
 	.byte "Byte ", $FF
   ;; This will write the byte of the data bus as hex right after "Byte "
-  LDA $6500
+  LDA $40E0
   JSR PrintByte
   ;; Since we have done "too much" during vblank, wait for the next one so that subsequent
   ;;   code that writes to nametables can do so during vblank expectedly as well
