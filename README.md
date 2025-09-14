@@ -1,3 +1,9 @@
+# WARNING WARNING WARNING
+
+This fork is to run the test suite on the Everdrive N8 Pro.  If you run make everdrive, it WILL OVERWRITE YOUR OS.
+
+Make sure to backup your SD card for your Everdrive N8 Pro!!!
+
 # AccuracyCoin
 AccuracyCoin is a large collection of NES accuracy tests on a single NROM cartridge.
 
