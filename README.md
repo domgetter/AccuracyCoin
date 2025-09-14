@@ -4,7 +4,11 @@ This fork is to run the test suite on the Everdrive N8 Pro.  If you run make eve
 
 Make sure to backup your SD card for your Everdrive N8 Pro!!!
 
-# How to run this
+# How to run this (from release)
+
+Go to the release page on the right, and grab nesos.nes and 255.RBF, and follow instructions there to copy to your SD card.
+
+# How to run this (by building yourself)
 
 Requirements: Quartus (which can successfully build EDN8 from Krikzz) and WSL
 
