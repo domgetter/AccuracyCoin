@@ -1,8 +1,34 @@
 # WARNING WARNING WARNING
 
-This fork is to run the test suite on the Everdrive N8 Pro.  If you run make everdrive, it WILL OVERWRITE YOUR OS.
+This fork is to run the test suite on the Everdrive N8 Pro.  If you run make everdrive, it WILL OVERWRITE YOUR EVERDRIVE OS.
 
 Make sure to backup your SD card for your Everdrive N8 Pro!!!
+
+# How to run this
+
+Requirements: Quartus (which can successfully build EDN8 from Krikzz) and WSL
+
+## To run this on your N8 Pro
+
+1) Hook up a USB to your Everdrive N8 Pro.
+
+2) Run `make everdrive` from the project root directory (where this README is).
+
+3) Unplug the USB when it is finished
+
+4) Power on your NES/Famicom
+
+5) Hit Reset on your NES/Famicom
+
+If you want to run the rom again, simply power cycle your NES/Famicom and hit Reset again.
+
+Question: Why do I have to unplug the USB?
+
+Answer: The USB supplies power to the N8 Pro and will keep the OS loaded if it already has been, so unplugging the USB cord forces the cartridge to reload your fake os ROM.
+
+Question: Why do I have to hit Reset?
+
+Answer: To pass the Open Bus tests, I had to disable the normal N8 Pro's OS registers in the $4000 region.  This has the side effect that the cartridge doesn't know when the mapper has been fully flashed to the FPGA, since it relies on those registers.
 
 # AccuracyCoin
 AccuracyCoin is a large collection of NES accuracy tests on a single NROM cartridge.
