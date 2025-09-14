@@ -24,7 +24,7 @@ module map_255(
 	assign mao.srm_mask_off = 1;
 	assign mao.chr_mask_off = 1;
 	assign mao.prg_mask_off = 1;
-	assign mao.mir_4sc		= 0;//enable support for 4-screen mirroring. for activation should be ensabled in cfg also
+	assign mao.mir_4sc		= 1;//enable support for 4-screen mirroring. for activation should be ensabled in cfg also
 	
 	assign prg.oe 				= cpu.rw;
 	assign srm.oe 				= cpu.rw;
@@ -39,19 +39,19 @@ module map_255(
 	wire [7:0]int_cpu_data;
 	wire [7:0]int_ppu_data;
 	
-	assign mao.map_cpu_oe	= 0;//int_cpu_oe | (srm.ce & srm.oe) | (prg.ce & prg.oe);
+	assign mao.map_cpu_oe	= int_cpu_oe | (srm.ce & srm.oe) | (prg.ce & prg.oe);
 	assign mao.map_cpu_do	= int_cpu_oe ? int_cpu_data : srm.ce ? mai.srm_do : mai.prg_do;
 	
-	assign mao.map_ppu_oe	= (chr.ce & chr.oe);
-	assign mao.map_ppu_do	= mai.chr_do;
+	assign mao.map_ppu_oe	= int_ppu_oe | (chr.ce & chr.oe);
+	assign mao.map_ppu_do	= int_ppu_oe ? int_ppu_data : mai.chr_do;
 	//************************************************************* mapper implementation below
 	parameter REG_VRAM_CTRL	= 0;//4registers
 	parameter REG_TIMER		= 4;//2 registers
 	parameter REG_APP_BANK	= 6;
 	
 	
-	assign prg.ce = rom_area;// | ram_area | app_area;
-	assign prg.we = 0;//(ram_area | app_area) & !cpu.rw;
+	assign prg.ce = rom_area | ram_area | app_area;
+	assign prg.we = (ram_area | app_area) & !cpu.rw;
 	
 	assign prg.addr[22:17] 	= 6'h3F;//system rom mapped to 0x7E0000
 	assign prg.addr[16:0] 	= 
@@ -63,13 +63,13 @@ module map_255(
 	assign chr.ce 				= !ppu.addr[13];
 	assign chr.we 				= !ppu.we & ppu_off;
 
-	assign chr.addr[12:0]  	= ppu.addr[12:0];
-	assign chr.addr[16:13] 	= 0;//ppu_off ? {1'b0, ppu.addr[12]} : atr_do[3:2];
-	assign chr.addr[22:17] 	= 6'h3F;//ppu_off ? 6'h20 : 6'h3F;
+	assign chr.addr[11:0]  	= ppu.addr[11:0];
+	assign chr.addr[13:12] 	= ppu_off ? {1'b0, ppu.addr[12]} : atr_do[3:2];
+	assign chr.addr[22:17] 	= ppu_off ? 6'h20 : 6'h3F;
 	
 	//A10-Vmir, A11-Hmir
 	assign mao.ciram_a10 	= ppu.addr[10];
-	assign mao.ciram_ce   = !ppu.addr[13];//ppu_off & !int_vram_tst ? !ppu.addr[13] : !int_vram_ce;//ppu_off ? !ppu_addr[13] : 1;
+	assign mao.ciram_ce 		= ppu_off & !int_vram_tst ? !ppu.addr[13] : !int_vram_ce;//ppu_off ? !ppu_addr[13] : 1;
 	
 	assign int_cpu_oe			= !cpu.m2 ? 0 : regs_oe;
 	assign int_ppu_oe 		= vram_oe_ppu & !ppu_off;
@@ -373,7 +373,6 @@ module timer(
 endmodule
  
  
-
 
 
 

@@ -113,7 +113,7 @@ module everdrive(
 	wire srm_off				= !dma.req_srm & !mai.map_rst & cfg.prg_ram_off;
 //**************************************************************************************** data bus drivers
 	wire apu_space				= {!cpu_ce, cpu_addr[14:5], 5'd0} == 16'h4000;
-	wire cart_space 			= !cpu_ce;
+	wire cart_space 			= (!cpu_ce | cpu_addr[14]) & !apu_space;
   wire special_values = 
    ({!cpu_ce, cpu_addr[14:0]} == 16'h6500 | {!cpu_ce, cpu_addr[14:0]} == 16'h6501 | {!cpu_ce, cpu_addr[14:0]} == 16'h6502);
   
@@ -182,9 +182,13 @@ module everdrive(
 	
 	//cpu data bus
 	assign cpu_dati[7:0] 	= 
+	bio_ce_cpu		? bio_do[7:0] : 
+	sst_ce_cpu		? sst_do[7:0] :
+	cc_ce_cpu		? cc_do[7:0]  ://priority was changed
   cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6500 ? sha_written_data[7:0] :
   cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6501 ? sha_written_addr[7:0] :
   cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6502 ? sha_written_addr[15:8] :
+	mao.map_cpu_oe	? mao.map_cpu_do[7:0] : 
 	
 	prg_dato[7:0];//open bus
 	
