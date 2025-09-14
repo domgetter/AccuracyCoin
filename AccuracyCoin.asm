@@ -1235,6 +1235,47 @@ DMASync90_Loop:
 	CMP <$C9
 	RTS
 ;;;;;;;
+
+;; In the verilog, the mapper has been designed to watch for the write cycle of SHA ($93)
+;; The mapper exposes 3 registers to retrieve the snooped values
+;; $6500 - snooped data bus
+;; $6501 - snooped address bus low byte
+;; $6502 - snooped address bus high byte
+;; This subroutine writes the three values to the screen near the bottom left
+PrintSnoopedAddrAndByte:
+  ;; Preserve AXY so we can call this from more places safely (thanks zeta0134 for the suggestion)
+  PHA
+  TXA
+  PHA
+  TYA
+  PHA
+  ;; This will write "Addr " to the nametable near the bottom left just below the last test
+  JSR PrintText
+	.word $2261
+	.byte "Addr ", $FF
+  ;; This will write the high byte of the address as hex right after "Addr "
+  LDA $6502
+  JSR PrintByte
+  ;; This will write the low byte of the address as hex right after "Addr "
+  LDA $6501
+  ;; This will write "Byte " to the nametable near the bottom left just below the last test
+  JSR PrintByte
+  JSR PrintText
+	.word $2281
+	.byte "Byte ", $FF
+  ;; This will write the byte of the data bus as hex right after "Byte "
+  LDA $6500
+  JSR PrintByte
+  ;; Since we have done "too much" during vblank, wait for the next one so that subsequent
+  ;;   code that writes to nametables can do so during vblank expectedly as well
+  JSR ResetScrollAndWaitForVBlank
+  ;; Put back AXY register contents
+  PLA
+  TAY
+  PLA
+  TAX
+  PLA
+  RTS
 	
 	.bank 1
 	.org $A000	; This next line of code is located at address $A000 in the ROM.
@@ -3580,12 +3621,15 @@ TEST_SHA_93_CorrectLength:
 	CMP #$FF
 	BNE TEST_SHA_Behavior1_93_JMP ; if address $0000 was updated, this is behavior 1.
 	LDA #$3E ; (Error code F) And if address $1F00 was changed, or if nothing happened at all, this failed.
+  JSR PrintSnoopedAddrAndByte
 	RTS		 ; (If address $1F00 ($700) was updated, that value gets fixed before the NMI occurs.)
 ;;;;;;;
 	
 TEST_SHA_Behavior2_93_JMP:
+  JSR PrintSnoopedAddrAndByte
 	JMP TEST_SHA_Behavior2_93
 TEST_SHA_Behavior1_93_JMP:
+  JSR PrintSnoopedAddrAndByte
 	JMP TEST_SHA_Behavior1_93
 	
 TEST_SHA_9F:
