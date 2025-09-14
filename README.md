@@ -30,6 +30,14 @@ Question: Why do I have to hit Reset?
 
 Answer: To pass the Open Bus tests, I had to disable the normal N8 Pro's OS registers in the $4000 region.  This has the side effect that the cartridge doesn't know when the mapper has been fully flashed to the FPGA, since it relies on those registers.
 
+# SHA Testing
+
+Part of the purpose of this rom is to check what the SHA instruction is doing on the write cycle.  If you run the tests on Page 10, there will be extra output that shows what the CPU address and data bus was on that specific cycle, which is the 6th cycle of SHA (ZP), Y in the first test of that page.
+
+Please report your results!
+
+My results are that when my frontloader first loads up, the ADDR is 0A00, and then as it warms up, it goes through 0E00, 1A00, 1E00, and after warming up enough, settles on 1F00.  The DATA is always 15 for my frontloader.
+
 # AccuracyCoin
 AccuracyCoin is a large collection of NES accuracy tests on a single NROM cartridge.
 
