@@ -189,8 +189,7 @@ module everdrive(
   cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6501 ? sha_written_addr[7:0] :
   cpu_rw && {!cpu_ce, cpu_addr[14:0]} == 16'h6502 ? sha_written_addr[15:8] :
 	mao.map_cpu_oe	? mao.map_cpu_do[7:0] : 
-	
-	prg_dato[7:0];//open bus
+	{!cpu_ce, cpu_addr[14:8]};//open bus
 	
 	assign cpu_dir 			= (cart_space | special_values) & cpu_rw & cpu.m2 ? 1 : 0;// cpu_bus_oe;
 	assign cpu_ex  			= 0;
